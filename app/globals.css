@@ -1,0 +1,544 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Custom Properties ─────────────────────────────────────────────── */
+:root {
+  --gold: #c5a059;
+  --deep-blue: #3d5a80;
+  --black: #000000;
+  --white: #ffffff;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(197, 160, 89, 0.2);
+  --transition-base: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* ─── Reset & Base ───────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: #000;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+  font-family: var(--font-manrope), "Manrope", sans-serif;
+}
+
+/* Hide scrollbar while lenis is active */
+html.lenis {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ─── Loader ─────────────────────────────────────────────────────────────── */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.loader-text {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+  font-size: clamp(80px, 15vw, 200px);
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  clip-path: inset(0 100% 0 0);
+  animation: textReveal 1.6s var(--transition-base) 0.3s forwards;
+}
+
+.loader-bar-wrap {
+  width: min(400px, 80vw);
+  height: 2px;
+  background: rgba(197, 160, 89, 0.2);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 32px;
+}
+
+.loader-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--gold), #fff, var(--gold));
+  background-size: 200% auto;
+  animation:
+    barGrow 2s var(--transition-base) forwards,
+    shimmer 2s linear infinite;
+}
+
+.loader-counter {
+  font-family: var(--font-manrope), "Manrope", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  margin-top: 16px;
+}
+
+@keyframes textReveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0% 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes barGrow {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* ─── Navigation ─────────────────────────────────────────────────────────── */
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.nav-link-inner {
+  display: block;
+  transition: transform 0.4s var(--transition-base);
+}
+
+.nav-link:hover .nav-link-inner {
+  transform: translateY(-100%);
+}
+
+.nav-link-hover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  color: var(--gold);
+  transition: transform 0.4s var(--transition-base);
+}
+
+.nav-link:hover .nav-link-hover {
+  transform: translateY(-100%);
+}
+
+/* ─── Fullscreen Menu ────────────────────────────────────────────────────── */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  pointer-events: none;
+}
+
+.menu-overlay.open {
+  pointer-events: all;
+}
+
+.menu-left,
+.menu-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px, 7vw, 100px);
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .menu-left,
+  .menu-right {
+    width: 100%;
+  }
+  .menu-right {
+    display: none;
+  }
+}
+
+.menu-left {
+  left: 0;
+  background: #080808;
+  transform: translateY(-100%);
+  transition: transform 0.8s var(--transition-base);
+}
+
+.menu-right {
+  right: 0;
+  background: #040404;
+  transform: translateY(100%);
+  transition: transform 0.8s var(--transition-base);
+}
+
+.menu-overlay.open .menu-left,
+.menu-overlay.open .menu-right {
+  transform: translateY(0);
+}
+
+/* ─── Canvas / Hero ──────────────────────────────────────────────────────── */
+.sequence-canvas {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: block;
+  background: #000;
+}
+
+/* ─── Notes Section ─────────────────────────────────────────────── */
+.word-hover-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.word-hover-image {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  width: 160px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+  z-index: 50;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.word-hover-wrap:hover .word-hover-image {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+/* ─── Bento Grid ─────────────────────────────────────────────────────────── */
+.bento-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.4s var(--transition-base);
+}
+
+.bento-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent, transparent);
+  transition: background 0.4s ease;
+  pointer-events: none;
+}
+
+.bento-card-gold::before {
+  background: linear-gradient(135deg, var(--gold), transparent 60%);
+}
+.bento-card-blue::before {
+  background: linear-gradient(135deg, var(--deep-blue), transparent 60%);
+}
+.bento-card-amber::before {
+  background: linear-gradient(135deg, #8b5e3c, transparent 60%);
+}
+
+.bento-card:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* cursor following glow */
+.bento-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  transform: translate(-50%, -50%);
+}
+
+.bento-card-gold .bento-glow {
+  background: radial-gradient(
+    circle,
+    rgba(197, 160, 89, 0.15) 0%,
+    transparent 70%
+  );
+}
+.bento-card-blue .bento-glow {
+  background: radial-gradient(
+    circle,
+    rgba(61, 90, 128, 0.2) 0%,
+    transparent 70%
+  );
+}
+.bento-card-amber .bento-glow {
+  background: radial-gradient(
+    circle,
+    rgba(139, 94, 60, 0.2) 0%,
+    transparent 70%
+  );
+}
+
+.bento-card:hover .bento-glow {
+  opacity: 1;
+}
+
+/* ─── Stats Section ──────────────────────────────────────────────────────── */
+.stat-number {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+  font-size: clamp(56px, 8vw, 120px);
+  background: linear-gradient(135deg, var(--gold), #fff 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+/* ─── Swiper / Coverflow ─────────────────────────────────────────────────── */
+.swiper-slide {
+  transform: scale(0.88);
+  transition: transform 0.5s var(--transition-base);
+}
+
+.swiper-slide-active {
+  transform: scale(1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(197, 160, 89, 0.18);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 99px;
+}
+
+/* ─── Selection ──────────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(197, 160, 89, 0.35);
+  color: #fff;
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+.font-bebas {
+  font-family: var(--font-bebas), "Bebas Neue", sans-serif;
+}
+.text-gold {
+  color: var(--gold);
+}
+.text-deep-blue {
+  color: var(--deep-blue);
+}
+.border-gold {
+  border-color: var(--gold);
+}
+.border-deep-blue {
+  border-color: var(--deep-blue);
+}
+
+/* ─── Marquee ────────────────────────────────────────────────────────────── */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-inner {
+  display: flex;
+  gap: 3rem;
+  white-space: nowrap;
+  animation: marquee 18s linear infinite;
+  width: max-content;
+}
+
+/* ─── Gradient Text ──────────────────────────────────────────────────────── */
+.gradient-gold {
+  background: linear-gradient(
+    135deg,
+    var(--gold) 0%,
+    #fff 50%,
+    var(--gold) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ─── Smooth reveal lines ────────────────────────────────────────────────── */
+.reveal-line {
+  overflow: hidden;
+}
+
+.reveal-line-inner {
+  display: block;
+  transform: translateY(110%);
+  transition: transform 0.9s var(--transition-base);
+}
+
+.reveal-line.in-view .reveal-line-inner {
+  transform: translateY(0);
+}
+
+/* ─── Section Transitions ────────────────────────────────────────────────── */
+.curtain-section {
+  position: relative;
+  z-index: 10;
+  background: #000;
+}
+
+/* ─── Noise Texture Overlay ──────────────────────────────────────────────── */
+.noise-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9990;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* ─── Pulse glow for interactive elements ────────────────────────────────── */
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(197, 160, 89, 0.25);
+  }
+}
+
+.pulse-gold {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* ─── Form Inputs ────────────────────────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-family: var(--font-manrope), "Manrope", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  font-family: var(--font-manrope), "Manrope", sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s var(--transition-base);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.form-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='rgba(255,255,255,0.4)' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 01.708 0L8 10.293l5.646-5.647a.5.5 0 01.708.708l-6 6a.5.5 0 01-.708 0l-6-6a.5.5 0 010-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+}
+
+.form-select option {
+  background: #111;
+  color: #fff;
+}
+
+/* ─── Admin Table ────────────────────────────────────────────────────────── */
+table {
+  border-collapse: collapse;
+}
+
+/* ─── Responsive adjustments ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .word-hover-image {
+    width: 120px;
+    height: 150px;
+  }
+
+  .bento-glow {
+    display: none;
+  }
+}

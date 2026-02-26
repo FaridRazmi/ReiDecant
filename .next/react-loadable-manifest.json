@@ -1,0 +1,68 @@
+{
+  "app\\booking\\page.tsx -> @studio-freight/lenis": {
+    "id": "app\\booking\\page.tsx -> @studio-freight/lenis",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_studio-freight_lenis_dist_lenis_mjs.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/AwardsSection": {
+    "id": "app\\page.tsx -> @/components/AwardsSection",
+    "files": [
+      "static/chunks/_app-pages-browser_components_AwardsSection_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/Footer": {
+    "id": "app\\page.tsx -> @/components/Footer",
+    "files": [
+      "static/chunks/_app-pages-browser_components_Footer_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/Loader": {
+    "id": "app\\page.tsx -> @/components/Loader",
+    "files": [
+      "static/chunks/_app-pages-browser_components_Loader_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/MarqueeStrip": {
+    "id": "app\\page.tsx -> @/components/MarqueeStrip",
+    "files": [
+      "static/chunks/_app-pages-browser_components_MarqueeStrip_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/Navbar": {
+    "id": "app\\page.tsx -> @/components/Navbar",
+    "files": [
+      "static/chunks/_app-pages-browser_components_Navbar_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/NotesSection": {
+    "id": "app\\page.tsx -> @/components/NotesSection",
+    "files": [
+      "static/chunks/_app-pages-browser_components_NotesSection_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/SequenceScroll": {
+    "id": "app\\page.tsx -> @/components/SequenceScroll",
+    "files": [
+      "static/chunks/_app-pages-browser_components_SequenceScroll_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/StatsSection": {
+    "id": "app\\page.tsx -> @/components/StatsSection",
+    "files": [
+      "static/chunks/_app-pages-browser_components_StatsSection_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @/components/VaultSection": {
+    "id": "app\\page.tsx -> @/components/VaultSection",
+    "files": [
+      "static/chunks/_app-pages-browser_components_VaultSection_tsx.js"
+    ]
+  },
+  "app\\page.tsx -> @studio-freight/lenis": {
+    "id": "app\\page.tsx -> @studio-freight/lenis",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_studio-freight_lenis_dist_lenis_mjs.js"
+    ]
+  }
+}
