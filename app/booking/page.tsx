@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { motion } from "motion/react";
+import { useSearchParams } from "next/navigation";
 import BookingForm from "@/components/BookingForm";
+
+function BookingContent() {
+  const searchParams = useSearchParams();
+  const defaultProductId = searchParams.get("product") ?? "";
+  return <BookingForm defaultProductId={defaultProductId} />;
+}
 
 export default function BookingPage() {
   const lenisRef = useRef<any>(null);
@@ -60,10 +67,10 @@ export default function BookingPage() {
 
         <div className="flex items-center gap-4">
           <a
-            href="/"
+            href="/catalogue"
             className="font-manrope text-xs tracking-[0.2em] uppercase text-white/50 hover:text-white transition-colors"
           >
-            ← Back
+            ← Catalogue
           </a>
         </div>
       </header>
@@ -106,7 +113,7 @@ export default function BookingPage() {
             className="font-manrope text-white/50 max-w-xl mx-auto"
             style={{ fontSize: "clamp(14px, 1.4vw, 17px)" }}
           >
-            Select your favorite scent, fill in your details, and we'll prepare
+            Select your favorite scent, fill in your details, and we&apos;ll prepare
             your premium decant with care
           </p>
         </motion.div>
@@ -117,7 +124,9 @@ export default function BookingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <BookingForm />
+          <Suspense fallback={<div className="text-white/30 text-center font-manrope text-sm">Loading form…</div>}>
+            <BookingContent />
+          </Suspense>
         </motion.div>
 
         {/* ── Trust Badges ──────────────────────────────────────── */}

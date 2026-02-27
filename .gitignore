@@ -1,1 +1,18 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment variables (NEVER commit these)
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# OS files
+.DS_Store
+Thumbs.db

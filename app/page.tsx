@@ -44,10 +44,10 @@ export default function Home() {
 
         lenisRef.current = lenis;
 
-        function animate(time: number) {
+        const animate = (time: number) => {
           lenis.raf(time);
           raf = requestAnimationFrame(animate);
-        }
+        }; ; 
         raf = requestAnimationFrame(animate);
 
         document.documentElement.classList.add("lenis");

@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 
-const TOTAL_FRAMES = 96;
+const TOTAL_FRAMES = 96; // ← Change this number to match how many frames you have
+
 const FRAME_PATH = (n: number) =>
   `/sequence/ezgif-frame-${String(n).padStart(3, "0")}.jpg`;
 

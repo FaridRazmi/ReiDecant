@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "motion/react";
 const NAV_LINKS = [
   { label: "The Collection", href: "#vault" },
   { label: "Our Story", href: "#notes" },
+  { label: "Catalogue", href: "/catalogue" },
   { label: "Scent Awards", href: "#awards" },
-  { label: "Book Now", href: "/booking" },
   { label: "Contact", href: "#footer" },
 ];
 
@@ -83,10 +83,10 @@ export default function Navbar() {
         {/* CTA + Hamburger */}
         <div className="flex items-center gap-5">
           <a
-            href="/booking"
+            href="/catalogue"
             className="hidden md:inline-flex font-manrope text-xs tracking-[0.15em] uppercase px-5 py-2.5 rounded-full border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition-all duration-300 pulse-gold"
           >
-            Book Now
+            Shop Now
           </a>
 
           {/* Hamburger */}

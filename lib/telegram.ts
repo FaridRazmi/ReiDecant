@@ -6,6 +6,7 @@ export async function sendTelegramNotification(booking: {
   name: string;
   phone: string;
   product: string;
+  size: string;
   totalPrice: number;
   roomNumber: string;
   notes?: string;
@@ -30,6 +31,7 @@ export async function sendTelegramNotification(booking: {
 📅 <b>Date:</b> ${booking.date}
 
 🧴 <b>Product:</b> ${booking.product}
+📦 <b>Size:</b> ${booking.size}
 🏠 <b>Room Number:</b> ${booking.roomNumber}
 💰 <b>Total:</b> RM${booking.totalPrice.toFixed(2)}
 

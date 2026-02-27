@@ -11,18 +11,18 @@ export async function GET(request: NextRequest) {
     request.nextUrl.searchParams.get("secret") ||
     request.headers.get("x-admin-secret");
 
-  if (secret !== process.env.ADMIN_SECRET) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+  if (secret?.trim() !== process.env.ADMIN_SECRET?.trim()) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     if (!supabase) {
       return NextResponse.json(
-        { error: "Database not configured. Please add NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local" },
-        { status: 503 }
+        {
+          error:
+            "Database not configured. Please add NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local",
+        },
+        { status: 503 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       console.error("DB fetch error:", error);
       return NextResponse.json(
         { error: "Failed to fetch bookings" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     console.error("Bookings API error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

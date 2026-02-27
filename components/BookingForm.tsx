@@ -1,15 +1,29 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { PRODUCTS, type Product } from "@/lib/products";
+import { getPrice10ml } from "@/lib/products";
+
+type Product = {
+  id: string;
+  name: string;
+  house: string;
+  category: string;
+  price5ml: number;
+  description: string;
+  notes: string[];
+  image: string;
+  image_url?: string;
+};
 
 type BookingStatus = "idle" | "loading" | "success" | "error";
+type Size = "5ml" | "10ml";
 
 interface BookingResult {
   id: string;
   name: string;
   product: string;
+  size: string;
   totalPrice: number;
   roomNumber: string;
   date: string;
@@ -17,32 +31,50 @@ interface BookingResult {
 }
 
 const CATEGORIES = [
-  { key: "all", label: "All Products" },
-  { key: "niche", label: "Niche" },
-  { key: "aquatic", label: "Aquatics" },
-  { key: "oud", label: "Oud & Spice" },
-  { key: "designer", label: "Designer" },
+  { key: "all",    label: "All" },
+  { key: "fresh", label: "Fresh" },
+  { key: "sweet", label: "Sweet" },
 ];
 
-export default function BookingForm() {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [productId, setProductId] = useState("");
-  const [quantity, setQuantity] = useState(1);
+export default function BookingForm({ defaultProductId = "" }: { defaultProductId?: string }) {
+  const [name, setName]           = useState("");
+  const [phone, setPhone]         = useState("");
+  const [productId, setProductId] = useState(defaultProductId);
+  const [size, setSize]           = useState<Size>("5ml");
+  const [quantity, setQuantity]   = useState(1);
   const [roomNumber, setRoomNumber] = useState("");
-  const [notes, setNotes] = useState("");
-  const [category, setCategory] = useState("all");
-  const [status, setStatus] = useState<BookingStatus>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [notes, setNotes]         = useState("");
+  const [category, setCategory]   = useState("all");
+  const [status, setStatus]       = useState<BookingStatus>("idle");
+  const [errorMsg, setErrorMsg]   = useState("");
   const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
+  const [products, setProducts]   = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  // Fetch product list from API (Supabase → hardcoded fallback)
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        setProducts(data.products || []);
+        // If defaultProductId not in list yet, it'll still pre-select via productId state
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProducts(false));
+  }, []);
 
   const filteredProducts = useMemo(() => {
-    if (category === "all") return PRODUCTS;
-    return PRODUCTS.filter((p) => p.category === category);
-  }, [category]);
+    if (category === "all") return products;
+    return products.filter((p) => p.category === category);
+  }, [category, products]);
 
-  const selectedProduct = PRODUCTS.find((p) => p.id === productId);
-  const totalPrice = selectedProduct ? selectedProduct.price * quantity : 0;
+  const selectedProduct = products.find((p) => p.id === productId);
+  const unitPrice = selectedProduct
+    ? size === "5ml"
+      ? selectedProduct.price5ml
+      : getPrice10ml(selectedProduct.price5ml)
+    : 0;
+  const totalPrice = unitPrice * quantity;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +89,7 @@ export default function BookingForm() {
           name,
           phone,
           productId,
+          size,
           quantity,
           roomNumber,
           notes,
@@ -73,10 +106,10 @@ export default function BookingForm() {
 
       setStatus("success");
       setBookingResult(data.booking);
-      // Reset form
       setName("");
       setPhone("");
       setProductId("");
+      setSize("5ml");
       setQuantity(1);
       setRoomNumber("");
       setNotes("");
@@ -96,7 +129,15 @@ export default function BookingForm() {
     <div className="w-full max-w-2xl mx-auto">
       <AnimatePresence mode="wait">
         {status === "success" && bookingResult ? (
-          <SuccessCard booking={bookingResult} onBack={resetForm} />
+          <motion.div
+            key="success-state"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
+          >
+            <SuccessCard booking={bookingResult} onBack={resetForm} />
+          </motion.div>
         ) : (
           <motion.form
             key="booking-form"
@@ -107,7 +148,7 @@ export default function BookingForm() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
           >
-            {/* ── Payment Notice Banner ────────────────────────────── */}
+            {/* ── Payment Notice Banner ─────────────────────────── */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -125,7 +166,7 @@ export default function BookingForm() {
                 </p>
                 <p className="font-manrope text-white/70 text-sm leading-relaxed">
                   We accept{" "}
-                  <span className="text-white font-semibold">Cash/QR</span> Via{" "}
+                  <span className="text-white font-semibold">Cash / QR</span> via{" "}
                   <span className="text-white font-semibold">Cash on Delivery (COD)</span>{" "}
                   only
                 </p>
@@ -140,7 +181,7 @@ export default function BookingForm() {
               </div>
             </motion.div>
 
-            {/* ── Name ─────────────────────────────────────────────── */}
+            {/* ── Name ──────────────────────────────────────────── */}
             <div>
               <label className="form-label">
                 Full Name <span className="text-red-400">*</span>
@@ -156,7 +197,7 @@ export default function BookingForm() {
               />
             </div>
 
-            {/* ── Phone ────────────────────────────────────────────── */}
+            {/* ── Phone ─────────────────────────────────────────── */}
             <div>
               <label className="form-label">
                 Phone Number <span className="text-red-400">*</span>
@@ -172,7 +213,7 @@ export default function BookingForm() {
               />
             </div>
 
-            {/* ── Category Filter ──────────────────────────────────── */}
+            {/* ── Category Filter ───────────────────────────────── */}
             <div>
               <label className="form-label">Category</label>
               <div className="flex flex-wrap gap-2">
@@ -196,7 +237,7 @@ export default function BookingForm() {
               </div>
             </div>
 
-            {/* ── Product Select ───────────────────────────────────── */}
+            {/* ── Product Select ────────────────────────────────── */}
             <div>
               <label className="form-label">
                 Select Product <span className="text-red-400">*</span>
@@ -207,15 +248,14 @@ export default function BookingForm() {
                 className="form-input form-select"
                 required
               >
-                <option value="">Choose a product...</option>
+                <option value="">Choose a fragrance...</option>
                 {filteredProducts.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} — RM{p.price}
+                    {p.name} ({p.house})
                   </option>
                 ))}
               </select>
 
-              {/* Product description */}
               {selectedProduct && (
                 <motion.p
                   initial={{ opacity: 0, y: -5 }}
@@ -227,7 +267,69 @@ export default function BookingForm() {
               )}
             </div>
 
-            {/* ── Quantity ─────────────────────────────────────────── */}
+            {/* ── Size Selector ─────────────────────────────────── */}
+            <div>
+              <label className="form-label">Decant Size</label>
+              <div className="grid grid-cols-2 gap-3">
+                {(["5ml", "10ml"] as Size[]).map((s) => {
+                  const sPrice = s === "5ml"
+                    ? (selectedProduct?.price5ml ?? 0)
+                    : getPrice10ml(selectedProduct?.price5ml ?? 0);
+                  const isActive = size === s;
+                  return (
+                    <motion.button
+                      key={s}
+                      type="button"
+                      onClick={() => setSize(s)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="relative flex flex-col items-center justify-center gap-1.5 py-5 px-4 rounded-2xl border transition-all duration-300"
+                      style={{
+                        background: isActive
+                          ? "linear-gradient(135deg, rgba(197,160,89,0.15) 0%, rgba(197,160,89,0.05) 100%)"
+                          : "rgba(255,255,255,0.02)",
+                        borderColor: isActive ? "var(--gold)" : "rgba(255,255,255,0.1)",
+                      }}
+                    >
+                      {/* Active dot */}
+                      {isActive && (
+                        <motion.div
+                          layoutId="size-dot"
+                          className="absolute top-3 right-3 w-2 h-2 rounded-full"
+                          style={{ background: "var(--gold)" }}
+                        />
+                      )}
+                      <span
+                        className="font-bebas text-3xl"
+                        style={{
+                          color: isActive ? "var(--gold)" : "rgba(255,255,255,0.5)",
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        {s}
+                      </span>
+                      {selectedProduct ? (
+                        <span
+                          className="font-manrope text-sm font-semibold"
+                          style={{ color: isActive ? "var(--gold)" : "rgba(255,255,255,0.35)" }}
+                        >
+                          RM {sPrice}
+                        </span>
+                      ) : (
+                        <span className="font-manrope text-[11px] tracking-widest uppercase text-white/25">
+                          {s === "5ml" ? "Starter" : "Full carry"}
+                        </span>
+                      )}
+                      <span className="font-manrope text-[10px] tracking-widest uppercase text-white/25">
+                        {s === "5ml" ? "≈ 75 sprays" : "≈ 150 sprays"}
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Quantity ──────────────────────────────────────── */}
             <div>
               <label className="form-label">Quantity</label>
               <div className="flex items-center gap-4">
@@ -251,7 +353,7 @@ export default function BookingForm() {
               </div>
             </div>
 
-            {/* ── Price Display ────────────────────────────────────── */}
+            {/* ── Price Summary ─────────────────────────────────── */}
             {selectedProduct && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -262,18 +364,23 @@ export default function BookingForm() {
                     "linear-gradient(135deg, rgba(197,160,89,0.06) 0%, rgba(0,0,0,0.4) 100%)",
                 }}
               >
-                <div className="flex justify-between items-center">
-                  <span className="font-manrope text-sm text-white/60">
-                    {selectedProduct.name} × {quantity}
-                  </span>
-                  <span className="font-bebas text-4xl gradient-gold">
-                    RM{totalPrice}
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-manrope text-sm text-white/60 mb-1">
+                      {selectedProduct.name} · {size} × {quantity}
+                    </p>
+                    <p className="font-manrope text-xs text-white/30">
+                      RM {unitPrice} × {quantity} unit{quantity > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <span className="font-bebas text-4xl gradient-gold" style={{ letterSpacing: "0.04em" }}>
+                    RM {totalPrice}
                   </span>
                 </div>
               </motion.div>
             )}
 
-            {/* ── Room Number ──────────────────────────────────────── */}
+            {/* ── Room / Address ────────────────────────────────── */}
             <div>
               <label className="form-label">
                 Room Number / Address <span className="text-red-400">*</span>
@@ -288,7 +395,7 @@ export default function BookingForm() {
               />
             </div>
 
-            {/* ── Notes ────────────────────────────────────────────── */}
+            {/* ── Notes ────────────────────────────────────────── */}
             <div>
               <label className="form-label">Notes (optional)</label>
               <textarea
@@ -300,7 +407,7 @@ export default function BookingForm() {
               />
             </div>
 
-            {/* ── Error Message ────────────────────────────────────── */}
+            {/* ── Error ────────────────────────────────────────── */}
             <AnimatePresence>
               {status === "error" && (
                 <motion.div
@@ -309,50 +416,33 @@ export default function BookingForm() {
                   exit={{ opacity: 0, y: -10 }}
                   className="p-4 rounded-xl border border-red-500/30 bg-red-500/10"
                 >
-                  <p className="font-manrope text-sm text-red-400">
-                    ⚠️ {errorMsg}
-                  </p>
+                  <p className="font-manrope text-sm text-red-400">⚠️ {errorMsg}</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* ── Payment Reminder ─────────────────────────────────── */}
+            {/* ── Payment Reminder ──────────────────────────────── */}
             <div className="flex items-center gap-2 py-1">
               <div className="flex-1 h-px bg-white/5" />
               <p className="font-manrope text-[11px] tracking-widest text-white/30 uppercase whitespace-nowrap">
-                💵 Cash/QR with COD only — paid upon delivery
+                💵 Cash / QR · COD only — paid upon delivery
               </p>
               <div className="flex-1 h-px bg-white/5" />
             </div>
 
-            {/* ── Submit Button ────────────────────────────────────── */}
+            {/* ── Submit ────────────────────────────────────────── */}
             <motion.button
               type="submit"
               disabled={status === "loading"}
-              className="w-full font-manrope text-sm tracking-[0.2em] uppercase py-4 px-8 rounded-full border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition-all duration-400 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden"
+              className="w-full font-manrope text-sm tracking-[0.2em] uppercase py-4 px-8 rounded-full border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition-all duration-400 disabled:opacity-50 disabled:cursor-not-allowed"
               whileHover={status !== "loading" ? { scale: 1.01 } : {}}
               whileTap={status !== "loading" ? { scale: 0.98 } : {}}
             >
               {status === "loading" ? (
                 <span className="flex items-center justify-center gap-3">
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Processing...
                 </span>
@@ -384,20 +474,14 @@ function SuccessCard({
       transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
       className="text-center"
     >
-      {/* Success checkmark */}
+      {/* Checkmark */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         className="w-24 h-24 mx-auto mb-8 rounded-full border-2 border-[var(--gold)] flex items-center justify-center"
       >
-        <svg
-          className="w-12 h-12 text-[var(--gold)]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
+        <svg className="w-12 h-12 text-[var(--gold)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <motion.path
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
@@ -428,7 +512,7 @@ function SuccessCard({
         Your decant is being prepared with care.
       </motion.p>
 
-      {/* Invoice Card */}
+      {/* Invoice */}
       <motion.div
         className="glass-card p-8 text-left max-w-md mx-auto mb-10"
         initial={{ opacity: 0, y: 20 }}
@@ -436,10 +520,7 @@ function SuccessCard({
         transition={{ delay: 0.5 }}
       >
         <div className="flex items-center gap-3 mb-6">
-          <div
-            className="w-8 h-1 rounded-full"
-            style={{ background: "var(--gold)" }}
-          />
+          <div className="w-8 h-1 rounded-full" style={{ background: "var(--gold)" }} />
           <span className="font-manrope text-[10px] tracking-[0.4em] text-white/40 uppercase">
             Invoice Summary
           </span>
@@ -449,17 +530,14 @@ function SuccessCard({
           <InvoiceRow label="Booking ID" value={booking.id} highlight />
           <InvoiceRow label="Name" value={booking.name} />
           <InvoiceRow label="Product" value={booking.product} />
+          <InvoiceRow label="Size" value={booking.size} />
           <InvoiceRow label="Qty" value={String(booking.quantity)} />
           <InvoiceRow label="Room" value={booking.roomNumber} />
           <InvoiceRow label="Date" value={booking.date} />
           <div className="pt-3 mt-3 border-t border-white/10">
             <div className="flex justify-between items-center">
-              <span className="font-manrope text-sm text-white/60 uppercase tracking-widest">
-                Total
-              </span>
-              <span className="font-bebas text-3xl gradient-gold">
-                RM{booking.totalPrice}
-              </span>
+              <span className="font-manrope text-sm text-white/60 uppercase tracking-widest">Total</span>
+              <span className="font-bebas text-3xl gradient-gold">RM {booking.totalPrice}</span>
             </div>
           </div>
         </div>
@@ -478,10 +556,10 @@ function SuccessCard({
           New Booking
         </button>
         <a
-          href="/"
+          href="/catalogue"
           className="font-manrope text-xs tracking-[0.2em] uppercase px-8 py-3 rounded-full border border-white/20 text-white/50 hover:border-white/40 hover:text-white transition-all duration-300"
         >
-          Back to Home
+          Back to Catalogue
         </a>
       </motion.div>
     </motion.div>
@@ -499,14 +577,8 @@ function InvoiceRow({
 }) {
   return (
     <div className="flex justify-between items-center">
-      <span className="font-manrope text-xs text-white/40 uppercase tracking-widest">
-        {label}
-      </span>
-      <span
-        className={`font-manrope text-sm ${
-          highlight ? "text-[var(--gold)] font-semibold" : "text-white/80"
-        }`}
-      >
+      <span className="font-manrope text-xs text-white/40 uppercase tracking-widest">{label}</span>
+      <span className={`font-manrope text-sm ${highlight ? "text-[var(--gold)] font-semibold" : "text-white/80"}`}>
         {value}
       </span>
     </div>
